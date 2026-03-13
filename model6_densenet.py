@@ -24,21 +24,21 @@ train_generator = train_datagen.flow_from_directory(
     'filtered_dataset/train',
     target_size=(224, 224),
     batch_size=32,
-    class_mode='binary'
+    class_mode='categorical'
 )
 
 validation_generator = test_datagen.flow_from_directory(
     'filtered_dataset/validation',
     target_size=(224, 224),
     batch_size=32,
-    class_mode='binary'
+    class_mode='categorical'
 )
 
 test_generator = test_datagen.flow_from_directory(
     'filtered_dataset/test',
     target_size=(224, 224),
     batch_size=32,
-    class_mode='binary',
+    class_mode='categorical',
     shuffle=False
 )
 
@@ -59,13 +59,13 @@ model = keras.Sequential([
     layers.Dropout(0.4),
     layers.Dense(128, activation='relu'),
     layers.Dropout(0.3),
-    layers.Dense(1, activation='sigmoid')
+    layers.Dense(3, activation='softmax')
 ])
 
 # Optimized for food classification
 model.compile(
     optimizer=keras.optimizers.Adam(learning_rate=0.0001),
-    loss='binary_crossentropy',
+    loss='categorical_crossentropy',
     metrics=['accuracy']
 )
 

@@ -370,29 +370,32 @@ if uploaded_file:
             arr = np.expand_dims(arr, 0)
 
             with st.spinner("Analyzing your dish…"):
-                pred = model.predict(arr, verbose=0)[0][0]
+                pred = model.predict(arr, verbose=0)[0]
 
-            north = (1 - pred) * 100
-            south = pred * 100
-            conf = max(north, south)
+            # Model classes order (alphanumerical): 0: non_indian, 1: north_indian, 2: south_indian
+            non_indian = pred[0] * 100
+            north = pred[1] * 100
+            south = pred[2] * 100
+            conf = max(non_indian, north, south)
+            class_idx = np.argmax(pred)
 
             # Confidence threshold — if uncertain, it's likely not Indian food
             CONFIDENCE_THRESHOLD = 70.0
 
-            if conf < CONFIDENCE_THRESHOLD:
+            if class_idx == 0 or conf < CONFIDENCE_THRESHOLD:
                 # Not Indian Cuisine
-                st.markdown("""
+                st.markdown(f"""
                 <div class="result-card" style="border-color: rgba(255,80,80,0.25);">
                     <div class="result-label">Classification Result</div>
                     <div class="result-value" style="background: linear-gradient(135deg, #ff6b6b, #ee5a24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Not Indian Cuisine</div>
                     <div class="result-confidence">The uploaded image does not appear to be Indian food</div>
                     <div style="margin-top:16px; font-size:0.85rem; color:rgba(255,255,255,0.35);">
-                        Model confidence was only {conf:.1f}% — too low to classify
+                        Model confidence: {conf:.1f}% 
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
             else:
-                if north > south:
+                if class_idx == 1:
                     label = "North Indian"
                 else:
                     label = "South Indian"
